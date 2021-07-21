@@ -106,8 +106,8 @@ class CheckoutJobs extends JobsHandler<{}> {
     email,
     selectedShippingAddressId,
   }: SetShippingAddressJobInput): PromiseCheckoutJobRunResponse => {
-    const checkout = LocalStorageHandler.getCheckout();
-
+    const checkout = await LocalStorageHandler.getCheckout();
+    console.log('ssa', checkout);
     const { data, error } = await this.apolloClientManager.setShippingAddress(
       shippingAddress,
       email,
@@ -124,7 +124,7 @@ class CheckoutJobs extends JobsHandler<{}> {
     }
 
     await this.localStorageHandler.setCheckout({
-      ...checkout,
+      ...(checkout?._W? checkout?._W : checkout),
       availableShippingMethods: data?.availableShippingMethods,
       billingAsShipping: false,
       email: data?.email,
@@ -140,7 +140,7 @@ class CheckoutJobs extends JobsHandler<{}> {
     billingAsShipping,
     selectedBillingAddressId,
   }: SetBillingAddressJobInput): PromiseCheckoutJobRunResponse => {
-    const checkout = LocalStorageHandler.getCheckout();
+    const checkout = await LocalStorageHandler.getCheckout();
 
     const { data, error } = await this.apolloClientManager.setBillingAddress(
       billingAddress,
@@ -157,7 +157,7 @@ class CheckoutJobs extends JobsHandler<{}> {
     }
 
     await this.localStorageHandler.setCheckout({
-      ...checkout,
+      ...(checkout?._W? checkout?._W : checkout),
       availablePaymentGateways: data?.availablePaymentGateways,
       billingAddress: data?.billingAddress,
       billingAsShipping: !!billingAsShipping,
@@ -224,7 +224,7 @@ class CheckoutJobs extends JobsHandler<{}> {
     }
 
     await this.localStorageHandler.setCheckout({
-      ...checkout,
+      ...data,
       promoCodeDiscount: data?.promoCodeDiscount,
       shippingMethod: data?.shippingMethod,
     });
@@ -337,7 +337,6 @@ class CheckoutJobs extends JobsHandler<{}> {
       redirectUrl,
       storeSource,
     });
-
     if (error) {
       return {
         dataError: {

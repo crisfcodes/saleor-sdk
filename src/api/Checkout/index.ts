@@ -117,12 +117,12 @@ export class SaleorCheckoutAPI extends ErrorListener {
     shippingAddress: IAddress,
     email: string
   ): CheckoutResponse => {
-    const checkoutId = this.saleorState.checkout?.id;
-    const alteredLines = this.saleorState.checkout?.lines?.map(item => ({
+    const co = this.saleorState.checkout?._W? this.saleorState.checkout?._W : this.saleorState.checkout;
+    const checkoutId = co.id;
+    const alteredLines = co?.lines?.map(item => ({
       quantity: item!.quantity,
       variantId: item?.variant!.id,
     }));
-
     if (alteredLines && checkoutId) {
       const { data, dataError } = await this.jobsManager.run(
         "checkout",
@@ -174,11 +174,12 @@ export class SaleorCheckoutAPI extends ErrorListener {
     billingAddress: IAddress,
     email?: string
   ): CheckoutResponse => {
-    const checkoutId = this.saleorState.checkout?.id;
-    const isShippingRequiredForProducts = this.saleorState.checkout?.lines
+    const co = this.saleorState.checkout?._W? this.saleorState.checkout?._W : this.saleorState.checkout;
+    const checkoutId = co?.id;
+    const isShippingRequiredForProducts = co?.lines
       ?.filter(line => line.quantity > 0)
       .some(({ variant }) => variant.product?.productType.isShippingRequired);
-    const alteredLines = this.saleorState.checkout?.lines?.map(item => ({
+    const alteredLines = co?.lines?.map(item => ({
       quantity: item!.quantity,
       variantId: item?.variant!.id,
     }));
@@ -436,8 +437,8 @@ export class SaleorCheckoutAPI extends ErrorListener {
   completeCheckout = async (
     input?: CompleteCheckoutInput
   ): CheckoutResponse => {
-    const checkoutId = this.saleorState.checkout?.id;
-
+    const co = this.saleorState.checkout?._W? this.saleorState.checkout?._W : this.saleorState.checkout;
+    const checkoutId = co?.id;
     if (checkoutId) {
       const { data, dataError } = await this.jobsManager.run(
         "checkout",

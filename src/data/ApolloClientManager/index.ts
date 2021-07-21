@@ -416,7 +416,7 @@ export class ApolloClientManager {
             : null;
 
           return {
-            id: existingLine?.id,
+            id: existingLine?.variant?.id,
             quantity: existingLine?.quantity || 0,
             totalPrice,
             variant: {
